@@ -1,0 +1,6 @@
+Should take a look againg on question 2, since there are some variables that are more important than others when it comes to doing the analysis. 
+Which attributes are more important than others?
+- Maybe we need to consider ID and Name columns since it is an important nature, but does it help us to find similarity and disimilarities
+  of the different tracks?
+- Energy helps ...
+- Speechiness helps with range, but may not be an important attribute when it come to find similarity and disimilarities.
