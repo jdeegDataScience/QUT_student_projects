@@ -5,7 +5,7 @@ This can act as a centralised 'summary document' for our considerations and deci
 ## Data Prep Notes
 
 ### Features
-- **TBC** potential inverse corr. b/w *Speechiness* and *Intrumentalness*; low speechiness *should* indicate high instrumentalness?
+- **TBC** potential inverse corr. b/w *Speechiness* and *Instrumentalness*; low speechiness *should* indicate high instrumentalness?
 
 - ID: PK; drop, not useful
 - Name: Arbitrary, unique 86% records. Drop, not useful.
