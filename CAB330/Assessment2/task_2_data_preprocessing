@@ -1,0 +1,28 @@
+# import pandas as pd
+# import numpy as np
+
+def preprocess_pos_data(raw_pos_data):
+    # drop unnecessary features
+    preprocess_df = raw_pos_data.drop(columns = ['Location', 'Transaction_Date'])
+    
+    # replace blank strings with NaN
+    preprocess_df['Transaction_Id'] = preprocess_df['Transaction_Id'].replace('', np.nan)
+    preprocess_df['Quantity'] = preprocess_df['Quantity'].replace('', np.nan)
+
+    # drop NAs rows 
+    preprocess_df.dropna(inplace = True)
+    
+    # drop Quantity
+    preprocess_df = preprocess_df.drop(columns = ['Quantity'])
+    
+    # typecast as needed
+    preprocess_df['Product_Name'] = preprocess_df['Product_Name'].astype(str)
+    preprocess_df['Transaction_Id'] = preprocess_df['Transaction_Id'].astype(int)
+    
+    # drop duplicates
+    preprocess_df.drop_duplicates(inplace=True)
+    
+    # reset index
+    preprocess_df.reset_index(drop=True, inplace=True)
+    
+    return preprocess_df
