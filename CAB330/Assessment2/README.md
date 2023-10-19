@@ -35,3 +35,36 @@ This can act as a centralised 'summary document' for our considerations and deci
         - 5 : 88
         - 1 : 39
         - 0 : 1
+
+# Task 2: Association Mining
+## Data Prep Notes
+- Data is long; 1 row per item in transaction
+
+### Features
+- Location ***Drop***
+- Transaction_Id
+    - 199999 unqiue transaction ID's
+    - 2 rows with blank strings values
+    - Transaction_Id are unique across all locations
+- Transaction_Date ***Drop***
+- Product_Name
+    - 17 unqiue products
+    - 0 rows with blank strings values
+- Quantity
+    - 2 rows with invalid blank string values
+    - Keep to drop records with invalid values *then* **drop**
+
+### Preprocessing Steps
+- Drop `Location` and `Transaction_Date`
+- Replace blank string values in `Transaction_Id` and `Quantity` with `NaN`
+    - Affects 4 records
+- Drop NaN rows
+    - Affects 4 records
+- Drop `Quantity`
+- Typecast as need
+    - `Transaction_Id` to `int`
+    - `Product_Name` to `str`
+- Drop duplicates
+    - Affects 169044 records
+    - Do not need to include same item in same transaction more than once
+    - AFAIK does not affect Association Analysis
