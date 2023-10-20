@@ -5,8 +5,6 @@ This can act as a centralised 'summary document' for our considerations and deci
 ## Data Prep Notes
 
 ### Features
-- **TBC** potential inverse corr. b/w *Speechiness* and *Instrumentalness*; low speechiness *should* indicate high instrumentalness?
-
 - ID: PK; drop, not useful
 - Name: Arbitrary, unique 86% records. Drop, not useful.
 - Energy
@@ -17,18 +15,23 @@ This can act as a centralised 'summary document' for our considerations and deci
     - Standardization should of this feature should improve model performance. 
     - Found 1 record with invalid blank string value, replaced with NaN as in wk9 prac.
 - Speechiness
-    - potentially log transform for more gaussian distribution?
-    - helps with range, but may not be an important attribute when it come to find similarity and disimilarities.
-    - perhaps should be binned or encoded? Suggestions based on info from assignment instructions.
-        - *\>=0.66* = T/F or 0/1 for *spoken_word_only*, eg. talk shows, podcasts, audiobooks, etc...
-        - *\<0.66 & \<=0.33* = music with words?
-        - *\<0.33* = instrumental/music only?
+    - trial log transformation
+        - *improved output?*
+    - Binary encode? based on info from assignment instructions.
+        - `preprocess_df.loc[preprocess_df['Speechiness'] > 0.65, 'spoken_word_only'] = 1`
+        - `preprocess_df.loc[preprocess_df['Speechiness'] < 0.65, 'spoken_word_only'] = 0`
+            - eg. talk shows, podcasts, audiobooks, etc...
+        - *improved output?*
 - Instrumentalness
-    - perhaps should be binary encoded? Greater than 0.5 to 'True', i.e. it is an instrumental track.
+    - perhaps should be binary encoded? Same threshold as *Speechiness*, i.e., greater than 0.65 is an instrumental track.
+        - `preprocess_df.loc[preprocess_df['Instrumentalness'] > 0.65, 'instrumental'] = 1`
+        - `preprocess_df.loc[preprocess_df['Instrumentalness'] < 0.65, 'instrumental'] = 0`
+        - *improved output?*
     - Found 1 record with invalid blank string value, replaced with NaN as in wk9 prac.
 - Type: Same for every record, dropped.
 - time_signature
-    - not sure what to make of 0 and 1 values, does not make sense in a musical context.
+    - Not sure what to make of 0 and 1 values, does not make sense in a musical context.
+    - Singular `0` value is very suspicious.
     - Distinct value counts:
         - 4 : 2547
         - 3 : 305
@@ -36,9 +39,25 @@ This can act as a centralised 'summary document' for our considerations and deci
         - 1 : 39
         - 0 : 1
 
+### Preprocessing Steps
+- Drop Duplicate Records
+    - Drops 292 duplicate records; confirm number duplicate records `music_data.duplicated().value_counts()`
+- Replace Blank String Values & Convert Data Types
+    - Blank string values in *Energy*, *Loudness*, and *Instrumentalness* replaced with `NaN` and converted to `float`.
+- Drop Records with Invalid Values
+    - Drops records with values beyond permissible range (0 to 1) in *Energy*, *Speechiness*, or *Instrumentalness*.
+    - Creates temporary column *drop_col*
+- Drop Unnecessary Features
+    - *ID* as it is Primary Key, not useful for clustering
+    - *Type* as it contains same value for every record
+    - *Name* as it is unique for 86% of records, not useful for clustering
+    - *drop_col* as it has served it's purpose
+- Reset Index
+    - previous index values are not useful, clean slate is best practice and precludes and referencing errors in subsequent data operations.
+
 # Task 2: Association Mining
 ## Data Prep Notes
-- Data is long; 1 row per item in transaction
+- Data is long; 1 row per item in every transaction.
 
 ### Features
 - Location ***Drop***
