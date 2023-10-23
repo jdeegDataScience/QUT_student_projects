@@ -93,3 +93,19 @@ This can act as a centralised 'summary document' for our considerations and deci
     1. `Product_Name` to `str`
 1. Reset Index
     1. Previous index values are not useful, clean slate is best practice and precludes and referencing errors in subsequent data operations.
+
+# Task 4: Web Log Mining
+## Data Prep Notes
+### Preprocessing Steps
+1. Drop Duplicates (2169)
+1. Rename Columns
+    1. `{'IP address' : 'ip', 'Timestamp' : 'time', 'Request' : 'request', 'Staus' : 'status'}`
+1. Drop Unsuccessful Requests (3522)
+1. Strip leading `[` from DateTime column
+1. Convert column to DateTime
+1. Trim Unnecessary Chars from `request` Column
+    1. `' HTTP/1.1'` and `' HTTP/1.0'`
+1. Extract Usernames from `requests`
+    1. `'.+nm=([\w]+)|\?user=([\w]+)|\?name=([\w]+)|show=([\w]+)'`
+1. Reset Index
+    1. Previous index values are not useful, clean slate is best practice and precludes and referencing errors in subsequent data operations.
