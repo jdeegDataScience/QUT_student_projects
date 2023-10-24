@@ -45,6 +45,7 @@ This can act as a centralised 'summary document' for our considerations and deci
     1. Drops 292 duplicate records; confirm number duplicate records `music_data.duplicated().value_counts()`
 1. Replace Blank String Values & Convert Data Types
     1. Blank string values in *Energy*, *Loudness*, and *Instrumentalness* replaced with `NaN` and converted to `float`.
+1. Drop NaNs in *Energy*, *Loudness*, and *Instrumentalness*
 1. Drop Records with Invalid Values
     1. Drops records with values beyond permissible range (0 to 1) in *Energy*, *Speechiness*, or *Instrumentalness*.
     1. Creates temporary column *drop_col*
