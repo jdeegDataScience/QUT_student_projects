@@ -37,7 +37,7 @@ def preprocess_web_data(raw_web_data):
     preprocess_df.reset_index(drop=True, inplace=True)
 
     # apply function above to get a new dataframe with added information
-    web_sessions = web_df.apply(get_log_user_info, axis=1)
+    web_sessions = preprocess_df.apply(get_log_user_info, axis=1)
 
     web_sessions_enriched = session_clustering_enrichment(web_sessions)
     
