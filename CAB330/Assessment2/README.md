@@ -118,12 +118,52 @@ This can act as a centralised 'summary document' for our considerations and deci
 1. Drop Unsuccessful Requests (3522)
 1. Strip leading `[` from DateTime column
 1. Convert column to DateTime
-1. Trim Unnecessary Chars from `request` Column
-    1. `' HTTP/1.1'` and `' HTTP/1.0'`
 1. Extract Usernames from `requests`
     1. `'.+nm=([\w]+)|\?user=([\w]+)|\?name=([\w]+)|show=([\w]+)'`
     1. `nm`, `name`, and `user` are combined into a new column `username`
     1. `show` values are stored in a different column, `UN_shown`
 1. Extract `method` from `request`
+1. Extract 'protocol' from 'request'
+1. Add 'conversion' column
+    1. Where 'request' column contains 'contestsubmission' = True
 1. Reset Index
     1. Previous index values are not useful, clean slate is best practice and precludes and referencing errors in subsequent data operations.
+### User Log Steps
+1. Time Difference Calculation:
+    1. time_diff_session calculates the time difference between the current row's timestamp and the last access time for the identified session.
+    1. time_diff_user calculates the time difference between the current row's timestamp and the last access time for the identified user.
+1. Session and User ID Assignment:
+    1. If the time difference from the previous session is greater than 30 minutes, a new session ID (session_id) is assigned, and the session information is updated in session_dict.
+    1. If the time difference from the previous user is greater than 60 minutes, a new user ID (user_id) is assigned, and the user information is updated in user_id_dict.
+1.Last Access Update:
+    1. The last access time for both session and user is updated to the timestamp of the current row.
+1. Row Information Assignment:
+    1. The function assigns the extracted information from the row back to the row itself.
+    1. session is assigned the session ID.
+    1. step is assigned the current step for the session.
+    1. userID is assigned the user ID.
+### Cluster Prep Steps
+1. Session Request Counts DataFrame:
+    1. A DataFrame named session_request_counts is created by grouping web_sessions by the 'session' column and calculating the number of unique requests ('request') per session.
+1. Method Column Addition:
+    1. The 'method' column is added to session_request_counts, containing the last method used in each session.
+1. Columns for Clustering:
+    1. The variable columns_to_plot is defined, containing a list of columns to be used for clustering. These include 'sessionLength', 'requests_per_session', 'isLoggedIn', 'returnUser', and 'conversion'.
+1. Username Column Addition:
+    1. The 'username' column is added to session_request_counts, representing the last username used in each session. Missing values in this column are filled with the default value 'Guest'.
+1. IsLoggedIn Binary Variable:
+    1. The 'isLoggedIn' column is created as a binary variable indicating whether the user is logged in, based on whether the 'username' is not equal to 'Guest'.
+1. IP Address Column Addition:
+    1. The 'ip' column is added to session_request_counts, containing the last IP address used in each session.
+1. ReturnUser Identification:
+    1. The 'returnUser' column is created in session_request_counts by identifying duplicate IP addresses and marking as True.
+1. Session Length Calculation:
+    1. The 'sessionLength' column is added to session_request_counts, representing the duration of each session in seconds. It is calculated as the time difference between the maximum and minimum timestamps within each     session.
+1. Bot Traffic Filtering:
+    1. Rows with NaN values in the 'sessionLength' column are dropped. Rows with 'sessionLength' less than 1 (potentially representing bot traffic) are filtered out.
+1. Conversion Column Addition:
+    1. The 'conversion' column is added to session_request_counts, representing whether a conversion event occurred in each session. It is calculated as the maximum value of the 'conversion' column within each session,     cast to boolean.
+1. Feature Extraction for Clustering:
+    1. features_for_clustering is created by selecting the columns specified in columns_to_plot from session_request_counts.
+1. Return Features for Clustering:
+    1. The resulting DataFrame features_for_clustering is returned, containing the features relevant for clustering analysis.
