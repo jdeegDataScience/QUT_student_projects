@@ -9,6 +9,9 @@ def preprocess_music_data(raw_music_data):
     preprocess_df['Energy'] = preprocess_df['Energy'].replace('', np.nan).astype(float)
     preprocess_df['Loudness'] = preprocess_df['Loudness'].replace('', np.nan).astype(float)
     preprocess_df['Instrumentalness'] = preprocess_df['Instrumentalness'].replace('', np.nan).astype(float)
+
+    # drop NaNs
+    preprocess_df.dropna(inplace=True)
     
     # drop outliers / beyond permissible range
     # map invalid values
