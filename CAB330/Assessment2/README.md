@@ -95,6 +95,20 @@ This can act as a centralised 'summary document' for our considerations and deci
 1. Reset Index
     1. Previous index values are not useful, clean slate is best practice and precludes and referencing errors in subsequent data operations.
 
+# Task 3: Text Analysis
+## Data Prep Notes
+### Preprocessing Steps
+1. Drop all columns except `Description`
+1. If `optimise` is `False` == Default Text Analysis
+    1. `stopwords` are set to the default English stopwords.
+    1. Token vector initialised `cab_tokenizer`, `ngram_range=(1,2)` and otherwise default parameters
+1. Else `optimise` = `True` == More data massaging & filtered token vector
+    1. `stopwords` are set to the default English stopwords and additional selected frequent tokens that were deemed not useful.
+    1. Strip identified noisy string patterns from data; "*. -- (C) Official Site*" etc...
+    1. Token vector initialised using `cab_tokenizer`, `ngram_range=(1,2)`, `min_df=40`, `max_df=0.7` and otherwise default parameters.
+1. Generate Document-Matrix
+1. Return Token Vector and Document-Term Matrix
+
 # Task 4: Web Log Mining
 ## Data Prep Notes
 ### Preprocessing Steps
