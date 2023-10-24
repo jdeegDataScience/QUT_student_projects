@@ -135,8 +135,7 @@ This can act as a centralised 'summary document' for our considerations and deci
 1. Session and User ID Assignment:
     1. If the time difference from the previous session is greater than 30 minutes, a new session ID (session_id) is assigned, and the session information is updated in session_dict.
     1. If the time difference from the previous user is greater than 60 minutes, a new user ID (user_id) is assigned, and the user information is updated in user_id_dict.
-
-1.Last Access Update:
+1. Last Access Update:
     1. The last access time for both session and user is updated to the timestamp of the current row.
 1. Row Information Assignment:
     1. The function assigns the extracted information from the row back to the row itself.
