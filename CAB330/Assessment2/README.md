@@ -108,5 +108,8 @@ This can act as a centralised 'summary document' for our considerations and deci
     1. `' HTTP/1.1'` and `' HTTP/1.0'`
 1. Extract Usernames from `requests`
     1. `'.+nm=([\w]+)|\?user=([\w]+)|\?name=([\w]+)|show=([\w]+)'`
+    1. `nm`, `name`, and `user` are combined into a new column `username`
+    1. `show` values are stored in a different column, `UN_shown`
+1. Extract `method` from `request`
 1. Reset Index
     1. Previous index values are not useful, clean slate is best practice and precludes and referencing errors in subsequent data operations.
