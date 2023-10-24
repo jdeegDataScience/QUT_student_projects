@@ -23,9 +23,17 @@ def preprocess_web_data(raw_web_data):
     # extract usernames
     usernames = preprocess_df['request'].str.extractall('.+nm=([\w]+)|\?user=([\w]+)|\?name=([\w]+)|show=([\w]+)')
     usernames = usernames.fillna('')
-    usernames['username'] = usernames[0] + usernames[1] + usernames[2] + usernames[3]
-    usernames = usernames.username.droplevel(level=1)
+    usernames['username'] = usernames[0] + usernames[1] + usernames[2]
+    usernames['UN_shown'] = usernames[3]
+    usernames = usernames[['username', 'UN_shown']].droplevel(level=1)
     preprocess_df = preprocess_df.merge(usernames, left_index=True, right_index=True, how='left')
+    
+    # convert empty values back to NAs
+    preprocess_df['UN_shown'] = preprocess_df['UN_shown'].replace('', np.nan).astype(object)
+    preprocess_df['username'] = preprocess_df['username'].replace('', np.nan).astype(object)
+    
+    # parse method from requests
+    preprocess_df['method'] = preprocess_df['request'].str.split(' ',expand=True)[0]
     
     # reset index
     preprocess_df.reset_index(drop=True, inplace=True)
