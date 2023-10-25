@@ -1,21 +1,13 @@
+# load packages
+from apyori import apriori
+import matplotlib.pyplot as plt
+import seaborn as sns
+from matplotlib.cm import ScalarMappable
+
 # load dataset
 pos_data = pd.read_csv('POS_TRANS_v1.csv', na_filter=False, low_memory=False)
 
-# load packages
-from apyori import apriori
-
-# 2.1 - Data Prep
-pos_df = preprocess_pos_data(pos_data)
-
-# ---
-
-# 2.2 - Variables included in analysis
-pos_df.columns
-
-# ---
-
-# 2.3 - Association Mining
-# separate cell to define function 
+# functions for Task 2
 def convert_apriori_results_to_pandas_df(results):
     rules = []
 
@@ -32,6 +24,17 @@ def convert_apriori_results_to_pandas_df(results):
     return pd.DataFrame(rules, columns=['Left_side', 'Right_side',
                                         'Support','Confidence', 'Lift'])
 
+# 2.1 - Data Prep
+pos_df = preprocess_pos_data(pos_data)
+
+# ---
+
+# 2.2 - Variables included in analysis
+pos_df.columns
+
+# ---
+
+# 2.3 - Association Mining
 # run apriori and use the defined function to generate a df of the results
 transactions = pos_df.groupby(['Transaction_Id'])['Product_Name'].apply(list)
 # type cast the transactions from pandas into normal list format
@@ -59,10 +62,6 @@ print(desc_conf.head(10))
 # ---
 
 # 2.4 - Confidence, lift, and support plots 
-import matplotlib.pyplot as plt
-import seaborn as sns
-from matplotlib.cm import ScalarMappable
-
 # Scatter plot with continuous color map
 plt.figure(figsize=(10, 6))
 scatter = sns.scatterplot(x='Support', y='Confidence', hue='Lift', data=result_df, palette='Reds', s=100, legend=False)
