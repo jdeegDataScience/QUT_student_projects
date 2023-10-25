@@ -59,7 +59,22 @@ print(desc_conf.head(10))
 # ---
 
 # 2.4 - Confidence, lift, and support plots 
-# Mary?
+import matplotlib.pyplot as plt
+import seaborn as sns
+from matplotlib.cm import ScalarMappable
+
+# Scatter plot with continuous color map
+plt.figure(figsize=(10, 6))
+scatter = sns.scatterplot(x='Support', y='Confidence', hue='Lift', data=result_df, palette='Reds', s=100, legend=False)
+num_rules = len(result_df)
+plt.title(f'Scatter Plot of Confidence vs Support (Coloured by Lift) - {num_rules} Rules')
+plt.xlabel('Support')
+plt.ylabel('Confidence')
+sm = ScalarMappable(cmap='Reds', norm=plt.Normalize(result_df['Lift'].min(), result_df['Lift'].max()))
+sm.set_array([])
+colorbar = plt.colorbar(sm)
+colorbar.set_label('Lift')
+plt.show()
 
 # ---
 
