@@ -1,4 +1,4 @@
-# import packages
+b# import packages
 import string
 import pandas as pd
 
@@ -119,12 +119,14 @@ print(movie_stop)
 # ---
 
 # 3.4
-# tf idf vectoriser
-tfidf_vec = TfidfVectorizer(tokenizer=cab_tokenizer, ngram_range=(1,2))
-X = tfidf_vec.fit_transform(movie_data.Description)
+# preset stopwords plus other identified frequent terms
+stopwords = set(sw.words('english')).union(movie_stop)
 
-# number of input features
-print(len(tfidf_vec.get_feature_names_out()))
+# initialise filtered vector and matrix
+tfidf_filter, X_filter = preprocess_movie_data(movie_data, optimise=True)
+
+print("Number of features seen during fitting:")
+print(len(tfidf_filter.get_feature_names_out()))
 
 # ---
 
