@@ -22,3 +22,10 @@ def empty_string_values_in_columns(df):
     else:
         print("No empty strings found in any columns.")
     return naughty_columns
+
+# programmatically find num_cluster with max silhouette score 
+def get_key_by_value(dictionary, search_value):
+    for key, value in dictionary.items():
+        if value == search_value:
+            return key
+    return None  # Return None if the value is not found in the dictionary
