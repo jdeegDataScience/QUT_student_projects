@@ -6,10 +6,16 @@ from sklearn.cluster import KMeans
 import matplotlib.pyplot as plt
 import seaborn as sns
 from sklearn.preprocessing import StandardScaler
+from sklearn.metrics import silhouette_score
 import warnings
 warnings.filterwarnings("ignore")
 
-# initiate session ID and user ID to 0
+# Load the CSV file into a DataFrame
+web_data = pd.read_csv('Weblog_v1.csv')
+
+# Task 1 & 2 - Load data and preprocess, extract variables for cluster analysis 
+-----------------------
+# initialise global vars for preprocessing
 session_id = 0
 user_id = 0
 
@@ -21,22 +27,18 @@ session_dict = defaultdict(lambda:1)
 user_id_dict = defaultdict(lambda:1)
 session_steps = defaultdict(lambda:1)
 
-
-# Task 1 & 2 - Load data and preprocess, extract variables for cluster analysis 
------------------------
-# Load the CSV file into a DataFrame
-df = pd.read_csv('Weblog_v1.csv')
 # Call the preprocess_web_data function with the DataFrame
-processed_df = preprocess_web_data(df)
-
+web_df = preprocess_web_data(df)
 
 # Task 3 - Apply clustering analysis - find optimal K
 -----------------------
+
 # list to save the clusters and cost
 clusters = []
 inertia_vals = []
-# Elbow plot
-for k in range(2, 15, 2):
+explore_range = range(2,15,2)
+
+for k in explore_range:
     # train clustering with the specified K
     model = KMeans(n_clusters=k, random_state=rs)
     model.fit(X)
@@ -44,11 +46,11 @@ for k in range(2, 15, 2):
     # append model to cluster list
     clusters.append(model)
     inertia_vals.append(model.inertia_)
+
 # plot the inertia vs K values
-plt.plot(range(2,15,2), inertia_vals, marker='*')
+plt.plot(explore_range, inertia_vals, marker='*')
 plt.show()
 
-from sklearn.metrics import silhouette_score
 # Define a range of cluster numbers to test
 cluster_range = range(2, 9)  # Test clusters from 2 to 8
 
