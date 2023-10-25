@@ -10,16 +10,19 @@ from scipy.spatial import distance
 # random state
 rs = 21
 
-# 1.1 - Clean dataset ; desription of steps in README doc
 # load dataset
 music_data = pd.read_csv('Music_shop_v1.csv', na_filter=False, encoding='latin-1')
 
 # ---
 
+# 1.1 - Clean dataset ; desription of steps in README doc
+# preprocess data 
 music_df = preprocess_music_data(music_data)
 
+# ---
+
 # 1.2 - Variables included n analysis
-music_data.columns
+music_df.columns
 
 # ---
 
@@ -41,6 +44,8 @@ print(music_df['Default_Cluster_ID'].value_counts())
 # pairplot the cluster distribution
 cluster_default = sns.pairplot(music_df, hue='Default_Cluster_ID')
 plt.show()
+
+
 # drop unnecessary col to avoid interferring with future analyses
 music_df.drop(columns='Default_Cluster_ID', inplace=True)
 
@@ -65,7 +70,7 @@ print(music_df['Scaled_Cluster_ID'].value_counts())
 cluster_scaled = sns.pairplot(music_df, hue='Scaled_Cluster_ID')
 plt.show()
 # drop unnecessary columns
-music_df.drop(columns='Scaled_Cluster_ID', inplace=True)
+music_df.drop(columns='Scaled_Cluster_ID', inplace=True)bb
 
 # silhouette scores and clustering error for each model
 # note the significant drop in 
@@ -109,39 +114,18 @@ for clust in range(len(clusters)):
     print(f"Silhouette score for k={key}", value)
     print()
 
-# programmatically find num_cluster with max silhouette score 
-def get_key_by_value(dictionary, search_value):
-    for key, value in dictionary.items():
-        if value == search_value:
-            return key
-    return None  # Return None if the value is not found in the dictionary
-
 max_sil_score = max(cluster_silhouettes.values())
-
 max_sil_clusters = get_key_by_value(cluster_silhouettes, max_sil_score)
 
-print(max_sil_score, max_sil_clusters)
-
+# generate model to calculate cluster distances
 opti_scaled_cluster = KMeans(n_clusters=max_sil_clusters, random_state=rs).fit(X_scaled)
-# assign cluster ID to each record in X
-y_opti_scaled = opti_scaled_cluster.predict(X_scaled)
-music_df['Opti_Scaled_Cluster_ID'] = y_opti_scaled
-
-# how many records are in each cluster
-print("Optimum Scaled Cluster Membership")
-print(music_df['Opti_Scaled_Cluster_ID'].value_counts())
-# pairplot the cluster distribution
-cluster_opti_scaled = sns.pairplot(music_df, hue='Opti_Scaled_Cluster_ID')
-plt.show()
-# only uncomment if not running subsequent codeblocks for Q1.5
-# music_df.drop(columns='Opti_Scaled_Cluster_ID', inplace=True)
 
 # Initialize a dictionary to store distances
 distances = {}
 
 # Iterate through each point
-for i, point1 in enumerate(model.cluster_centers_):
-    for j, point2 in enumerate(model.cluster_centers_):
+for i, point1 in enumerate(opti_scaled_cluster.cluster_centers_):
+    for j, point2 in enumerate(opti_scaled_cluster.cluster_centers_):
         if i != j:  # Ensure you don't calculate the distance from a point to itself
             this_distance = distance.euclidean(point1, point2)
             distances[(i, j)] = this_distance
@@ -155,19 +139,29 @@ print(f'The minimum distance between cluster centres is {min_dist:.3} units.')
 print(f'The maximum distance between cluster centres is {max_dist:.3} units.')
 print(f'The average distance between cluster centres is {avg_dist:.3} units.')
 
-# markdown block
-# Initially, we used the **elbow method** to find a local minima in the $K$ values vs. *clustering error* plot, as the decreased rate of change of the gradient indicated that each additional cluster beyond that point did not meaningfully reduce the clustering error. This allowed us to narrow down the number of potential $K$ values to a promising subset of $K=4$ and $K=5$.
-# With this narrower range of values identified, we calculated the **silhouette score** for each value.
-
 # code block
 print(f'We found that K={max_sil_clusters} was optimal, with a silhouette score of {max_sil_score:.3}.')
 
 # ---
 
 # 1.5 - Interpret Cluster Results
+# assign cluster ID to each record in X_scaled
+y_opti_scaled = opti_scaled_cluster.predict(X_scaled)
+music_df['Opti_Scaled_Cluster_ID'] = y_opti_scaled
+
+# how many records are in each cluster
+print("Optimum Scaled Cluster Membership")
+print(music_df['Opti_Scaled_Cluster_ID'].value_counts())
+
 # prepare the column and bin size
 cols = ['Energy', 'Loudness', 'Speechiness', 'Instrumentalness']
 n_bins = 20
+
+# pairplot the cluster distribution
+cluster_opti_scaled = sns.pairplot(music_df, hue='Opti_Scaled_Cluster_ID')
+plt.show()
+# only uncomment if not running subsequent codeblocks for Q1.5
+# music_df.drop(columns='Opti_Scaled_Cluster_ID', inplace=True)
 
 # inspecting all clusters
 clusters_to_inspect = range(max_sil_clusters)
