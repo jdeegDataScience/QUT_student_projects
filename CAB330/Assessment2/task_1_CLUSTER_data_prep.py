@@ -22,7 +22,7 @@ def preprocess_music_data(raw_music_data):
     preprocess_df = preprocess_df[preprocess_df.drop_col != True]
     
     # drop unnecessary features
-    preprocess_df = preprocess_df.drop(columns = ['ID', 'Type', 'Name', 'drop_col'])
+    preprocess_df = preprocess_df.drop(columns = ['ID', 'Type', 'Name', 'drop_col', 'time_signature'])
     
     # reset index
     preprocess_df.reset_index(drop=True, inplace=True)
