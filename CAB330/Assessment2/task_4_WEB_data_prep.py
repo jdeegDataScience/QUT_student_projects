@@ -13,10 +13,7 @@ def preprocess_web_data(raw_web_data):
     preprocess_df['time'] = preprocess_df['time'].str.replace('[', '')
     
     # convert to datetime 
-    preprocess_df['time'] = pd.to_datetime(preprocess_df['time'], format= '%d/%b/%Y:%H:%M:%S')
-    
-    # remove useless " HTTP/1.1" and " HTTP/1.0" from request strings
-    preprocess_df['request'] = preprocess_df['request'].str.slice(start=0, stop=-9)    
+    preprocess_df['time'] = pd.to_datetime(preprocess_df['time'], format= '%d/%b/%Y:%H:%M:%S')  
     
     # extract usernames
     usernames = preprocess_df['request'].str.extractall('.+nm=([\w]+)|\?user=([\w]+)|\?name=([\w]+)|show=([\w]+)')
@@ -31,8 +28,14 @@ def preprocess_web_data(raw_web_data):
     preprocess_df['username'] = preprocess_df['username'].replace('', np.nan).astype(object)
     
     # parse method from requests
-    preprocess_df['method'] = preprocess_df['request'].str.split(' ',expand=True)[0]
-    
+    #preprocess_df['method'] = preprocess_df['request'].str.split(' ',expand=True)[0]
+    request_splits = preprocess_df['request'].str.split(expand=True)
+    preprocess_df['method'] = request_splits[0]
+    preprocess_df['request'] = request_splits[1]
+    preprocess_df['protocol'] = request_splits[2]
+    # Add 'conversion' column
+    preprocess_df['conversion'] = preprocess_df['request'].str.contains('contestsubmission', case=False)
+
     # reset index
     preprocess_df.reset_index(drop=True, inplace=True)
 
@@ -41,7 +44,9 @@ def preprocess_web_data(raw_web_data):
 
     web_sessions_enriched = session_clustering_enrichment(web_sessions)
     
-    return web_sessions_enriched
+    return web_sessions_enriched #web_sessions
+
+
 
 def get_log_user_info(row):
     # access global variables shared between all rows
@@ -80,13 +85,18 @@ def get_log_user_info(row):
     session_steps[row['session']] += 1
     return row
 
+
+
 def session_clustering_enrichment(web_sessions):
     # Create session_request_counts DataFrame
     session_request_counts = web_sessions.groupby('session')['request'].nunique().reset_index()
     session_request_counts.rename(columns={'request': 'requests_per_session'}, inplace=True)
     
+    # Add the 'method' column to session_request_counts
+    session_request_counts['method'] = web_sessions.groupby('session')['method'].last().values
+    
     # Assuming session_request_counts has columns: ['sessionLength', 'requests_per_session', 'isLoggedIn', 'UserID', 'IP Address']
-    columns_to_plot = ['sessionLength', 'requests_per_session', 'isLoggedIn', 'userID', 'returnUser']
+    columns_to_plot = ['sessionLength', 'requests_per_session', 'isLoggedIn', 'returnUser', 'conversion']
     
     # Add the 'Username' column to session_request_counts
     session_request_counts['username'] = web_sessions.groupby('session')['username'].last().values
@@ -98,18 +108,17 @@ def session_clustering_enrichment(web_sessions):
     # Add 'IP Address' column
     session_request_counts['ip'] = web_sessions.groupby('session')['ip'].last().values
     # Identify returnUser based on matching IP addresses
-    session_request_counts['returnUser'] = session_request_counts.duplicated(subset='ip', keep='first')
-    
-    # Add 'method' column to session_request_counts
-    session_request_counts['method'] = web_sessions.groupby('session')['method'].last().values
-    
-    # Add 'userID' column to session_request_counts
-    session_request_counts['userID'] = web_sessions.groupby('session')['userID'].last().values
-    
+    session_request_counts['returnUser'] = session_request_counts.duplicated(subset='ip')
+
     # Add 'sessionLength' column
     session_request_counts['sessionLength'] = web_sessions.groupby('session')['time'].apply(lambda x: (x.max() - x.min()).seconds)
     # Drop rows where 'sessionLength' is NaN
     session_request_counts = session_request_counts.dropna(subset=['sessionLength'])
+    # Filter and drop rows where 'sessionLength' is less than 1 (Bot traffic)
+    session_request_counts = session_request_counts[session_request_counts['sessionLength'] >= 1]
+
+    # Add 'conversion' column
+    session_request_counts['conversion'] = web_sessions.groupby('session')['conversion'].max().astype(bool)
     
     # Extract features for clustering
     features_for_clustering = session_request_counts[columns_to_plot]
