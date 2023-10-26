@@ -45,6 +45,9 @@ coefs = coefs.loc[coefs['coef'].abs() > 1].sort_values(by='coef', key=abs, ascen
 # calculate whole minute approximations for easier interpretation
 coefs['minutes'] = (coefs['coef']/60).round(0).astype(int)
 
+# calculate hours approximations for easier interpretation
+coefs['hours'] = (coefs['coef']/3600).round(2)
+
 # 4 - Results and Potential Applications
 -----------------------
 # R^2: Coefficient of Determination
