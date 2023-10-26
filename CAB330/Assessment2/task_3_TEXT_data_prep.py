@@ -44,7 +44,7 @@ def preprocess_movie_data(raw_movie_data, optimise=False):
         tfidf_vec = TfidfVectorizer(tokenizer=cab_tokenizer, ngram_range=(1,2))
     else: # strip noisy phrases from data and filter terms by frequency
         preprocess_df['Description'] = preprocess_df['Description'].str.split('\. --',expand=True).iloc[:,0]
-        tfidf_vec = TfidfVectorizer(tokenizer=cab_tokenizer, ngram_range=(1,2), min_df=0.05, max_df=0.3)
+        tfidf_vec = TfidfVectorizer(tokenizer=cab_tokenizer, ngram_range=(1,2), min_df=0.065, max_df=0.3)
     
     X = tfidf_vec.fit_transform(preprocess_df.Description)
     
