@@ -113,7 +113,11 @@ visualise_zipf(terms)
 # additional terms identified during analysis that are...
 # not useful for clustering and...
 # that are not contained in the preset stop words list
-movie_stop = set(('c', 'r', 'u', 'film'))
+movie_stop = set(('c', 'r', 'u', 'film', 'director',
+                  'life', 'love', 'feature', 'one', 'story',
+                  'world', 'rovi', 'award', 'academy',
+                  'year', 'two', 'find', 'include',
+                  'also', 'first', 'star'))
 print(movie_stop)
 
 # ---
