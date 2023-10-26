@@ -1,19 +1,14 @@
+# import libraries
 import pandas as pd
 import numpy as np
 from collections import defaultdict
 import datetime
-from sklearn.cluster import KMeans
-import matplotlib.pyplot as plt
-import seaborn as sns
-from sklearn.preprocessing import StandardScaler
-from sklearn.metrics import silhouette_score
-import warnings
-warnings.filterwarnings("ignore")
+from sklearn.linear_model import LinearRegression
 
-# Load the CSV file into a DataFrame
+# load data
 web_data = pd.read_csv('Weblog_v1.csv')
 
-# Task 1 & 2 - Load data and preprocess, extract variables for cluster analysis 
+# 1 Load data and preprocess for cluster analysis 
 -----------------------
 # initialise global vars for preprocessing
 session_id = 0
@@ -27,63 +22,34 @@ session_dict = defaultdict(lambda:1)
 user_id_dict = defaultdict(lambda:1)
 session_steps = defaultdict(lambda:1)
 
-# Call the preprocess_web_data function with the DataFrame
+# preprocess web log data
 web_df = preprocess_web_data(df)
 
-# Task 3 - Apply clustering analysis - find optimal K
+# 3 - Data Mining Method: Linear Regression
 -----------------------
+# generate training data and dependent variable sets
+X_lm = web_df.iloc[:, 1:]
+y_lm = web_df.iloc[:, 0]
 
-# list to save the clusters and cost
-clusters = []
-inertia_vals = []
-explore_range = range(2,15,2)
+# fit the linear model
+web_lm = LinearRegression().fit(X_lm, y_lm)
 
-for k in explore_range:
-    # train clustering with the specified K
-    model = KMeans(n_clusters=k, random_state=rs)
-    model.fit(X)
-    
-    # append model to cluster list
-    clusters.append(model)
-    inertia_vals.append(model.inertia_)
+# create df of features and their coefficient values
+coefs = pd.DataFrame(list(zip(web_lm.feature_names_in_, web_lm.coef_)), 
+                    columns = ['page', 'coef'])
 
-# plot the inertia vs K values
-plt.plot(explore_range, inertia_vals, marker='*')
-plt.show()
+# filter out features with an predicted effect of less than +/- 1 second
+# sort by descending absolute value of coefficient value
+coefs = coefs.loc[coefs['coef'].abs() > 1].sort_values(by='coef', key=abs, ascending=False).reset_index(drop=True)
 
-# Define a range of cluster numbers to test
-cluster_range = range(2, 9)  # Test clusters from 2 to 8
+# calculate whole minute approximations for easier interpretation
+coefs['minutes'] = (coefs['coef']/60).round(0).astype(int)
 
-# Iterate over different cluster numbers
-for num_clusters in cluster_range:
-    # Apply k-means clustering
-    kmeans = KMeans(n_clusters=num_clusters, random_state=42)
-    y = kmeans.fit_predict(X)
+# 4 - Results and Potential Applications
+-----------------------
+# R^2: Coefficient of Determination
+# proportion of variation in Y that is explained by x, i.e. therefor by the model
+print(f"The model explains {web_lm.score(X_lm, y_lm):.2%} of the variability in the data")
 
-    # Compute silhouette score
-    silhouette_avg = silhouette_score(X, y)
-    print(f"Number of Clusters: {num_clusters}, Silhouette Score: {silhouette_avg}")
-
-    # Sum of intra-cluster distances
-    print(f"Number of Clusters: {num_clusters}, Sum of intra-cluster distance: {kmeans.inertia_}")
-
-    print("\n")  
-
-
-# Apply k-means clustering and plot
-num_clusters = 4
-rs=42
-kmeans = KMeans(n_clusters=num_clusters, random_state=rs)
-kmeans.fit(X)
-y = kmeans.predict(X)
-processed_df['cluster'] = y
-
-# how many records are in each cluster
-print("Cluster membership")
-print(processed_df['cluster'].value_counts())
-
-# sum of intra-cluster distances
-print("Sum of intra-cluster distance:", kmeans.inertia_)
-
-cluster_g = sns.pairplot(processed_df, hue='cluster')
-plt.show()
+# display coefs df to discuss results
+coefs
