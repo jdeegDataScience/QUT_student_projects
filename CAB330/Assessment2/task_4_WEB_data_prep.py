@@ -47,10 +47,10 @@ def preprocess_web_data(raw_web_data):
     
     web_sessions = pd.get_dummies(web_sessions, columns=['page'], prefix=[''], prefix_sep=[''])
     
-    web_sessions = web_sessions.groupby('session').last().reset_index()
+    web_sessions = web_sessions.groupby('session').max().reset_index()
     
     # return only the required columns
-    return web_sessions.iloc[:,7:]
+    return web_sessions.iloc[:,6:]
 
 
 
