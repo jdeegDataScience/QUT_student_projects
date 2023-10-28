@@ -24,11 +24,15 @@ from math import sqrt
 # M_metadata_v1.csv
 movie_data = pd.read_csv('M_metadata_v1.csv', na_filter=False)
 
+-----------------------
+
 # initialise resources and constants
 rs = 21
 lemmatizer = WordNetLemmatizer()
 punct = set(string.punctuation)
 # stopwords are not initialised here as different sets are used throughout the analysis
+
+-----------------------
 
 # initialise functions for task
 # function to visualise text cluster
@@ -49,9 +53,15 @@ def visualise_text_cluster(n_clusters, cluster_centers, terms, num_word = 10):
 
 # creates tf-idf terms; a bit slow, run only occasionaly
 # Param - document_col: collection of raw document text that you want to analyse
-def calculate_tf_idf_terms(document_col):
-    # use count vectorizer to find TF and DF of each term
-    count_vec = CountVectorizer(tokenizer=cab_tokenizer, ngram_range=(1,2))
+# Param - optimise: determines which tokenizer to use, with/without stopwords
+def calculate_tf_idf_terms(document_col, optimise=False):
+    if optimise: # strip stopwords 
+        # use count vectorizer to find TF and DF of each term
+        count_vec = CountVectorizer(tokenizer=cab_tokenizer, ngram_range=(1,2))
+    else: # default (not stopwords) vector
+        # use count vectorizer to find TF and DF of each term
+        count_vec = CountVectorizer(tokenizer=cab_tokenizer_no_stop, ngram_range=(1,2))
+    
     X_count = count_vec.fit_transform(document_col)
     
     # create list of terms and their tf and df
@@ -97,47 +107,47 @@ def visualise_zipf(terms, itr_step = 50):
     
     plt.show()
 
-
-# ---
+-----------------------
 
 # 3.2
-# no stopwords required for default ZIPF plot
-stopwords = ''
+# no stopwords required for default ZIPF plot, optimise param can be left at default value
 # slow, run infrequently
 terms = calculate_tf_idf_terms(movie_data.Description)
 visualise_zipf(terms)
 
-# ---
+-----------------------
 
 # 3.3
-# additional terms identified during analysis that are...
-# not useful for clustering and...
-# that are not contained in the preset stop words list
-movie_stop = set(('c', 'r', 'u', 'film', 'director',
-                  'life', 'love', 'feature', 'one', 'story',
-                  'world', 'rovi', 'award', 'academy',
-                  'year', 'two', 'find', 'include',
-                  'also', 'first', 'star'))
+movie_stop = set(('c', 'r', 'u', 'film', 'films',
+                     'life', 'love', 'one', 'story', 'lives', 'living',
+                     'director', 'direct', 'directs', 'directing',
+                     'feature', 'features', 'featuring',
+                     'star', 'stars', 'starring',
+                     'world', 'rovi', 'award', 'academy',
+                     'year', 'years', 'two', 
+                     'find', 'finds', 'power', 'powers', 'powerful',
+                     'include', 'includes', 'including',
+                     'also', 'first', 'filmmaker', 'movie', 'movies',
+                     'dream', 'would', 'use'))
 print(movie_stop)
 
-# ---
+-----------------------
 
 # 3.4
-# preset stopwords plus other identified frequent terms
-stopwords = set(sw.words('english')).union(movie_stop)
-
 # initialise filtered vector and matrix
+# optimise=True means that stopwords will be filtered out and terms will be filtered with document frequency parameters.
 tfidf_filter, X_filter = preprocess_movie_data(movie_data, optimise=True)
 
-print("Number of features seen during fitting:")
-print(len(tfidf_filter.get_feature_names_out()))
+print("Number of features seen during fitting: ", len(tfidf_filter.get_feature_names_out()))
 
-# ---
+-----------------------
 
 # 3.5 Optimal K
 # apply SVD/LSA transformation 
 svd = TruncatedSVD(n_components=100, random_state=rs)
 X_trans = svd.fit_transform(X_filter)
+
+-----------------------
 
 # list to save the clusters and cost
 clusters = []
@@ -157,6 +167,8 @@ for k in explore_range:
 plt.plot(explore_range, inertia_vals, marker='*')
 plt.show()
 
+-----------------------
+
 # programmatically generate and store silhouette scores for later
 cluster_silhouettes = {}
 
@@ -171,13 +183,14 @@ for clust in range(len(clusters)):
 
 max_sil_score = max(cluster_silhouettes.values())
 max_sil_clusters = get_key_by_value(cluster_silhouettes, max_sil_score)
-print("Number of clusters: ", max_sil_score, "\nSilhouette Score: ", max_sil_clusters)
 
-# ---
+-----------------------
 
 # 3.6 - Describe Clusters and Display results
 # number of clusters
 print("Number of clusters: ", max_sil_clusters, "\nSilhouette Score: ", max_sil_score)
+
+-----------------------
 
 # K-means clustering using LSA-transformed X
 svd_kmeans = KMeans(n_clusters=max_sil_clusters, random_state=rs).fit(X_trans)
