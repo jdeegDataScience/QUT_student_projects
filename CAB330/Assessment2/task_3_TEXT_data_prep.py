@@ -83,6 +83,8 @@ def preprocess_movie_data(raw_movie_data, optimise=False):
     
     if optimise: # strip noisy phrases from data and filter terms
         preprocess_df['Description'] = preprocess_df['Description'].str.split(r'\. --',expand=True).iloc[:,0]
+        preprocess_df['Description'] = preprocess_df['Description'].str.split(r'\. ~',expand=True).iloc[:,0]
+        preprocess_df['Description'] = preprocess_df['Description'].str.split(r'\. \([cC]\)',expand=True).iloc[:,0]
         tfidf_vec = TfidfVectorizer(tokenizer=cab_tokenizer, ngram_range=(1,2), min_df=0.06, max_df=0.3)
     
     # otherwise, default analysis
