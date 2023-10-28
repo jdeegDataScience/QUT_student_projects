@@ -123,7 +123,7 @@ movie_stop = set(('c', 'r', 'u', 'film', 'films',
                      'director', 'direct', 'directs', 'directing',
                      'feature', 'features', 'featuring',
                      'star', 'stars', 'starring',
-                     'world', 'rovi', 'award', 'academy',
+                     'world', 'award', 'academy',
                      'year', 'years', 'two', 
                      'find', 'finds', 'power', 'powers', 'powerful',
                      'include', 'includes', 'including',
@@ -152,9 +152,8 @@ X_trans = svd.fit_transform(X_filter)
 # list to save the clusters and cost
 clusters = []
 inertia_vals = []
-explore_range = range(17, 22, 1)
 
-for k in explore_range:
+for k in range(12, 19, 1):
     # train clustering with the specified K
     model = KMeans(n_clusters=k, random_state=rs)
     model.fit(X_trans)
@@ -177,6 +176,7 @@ for clust in range(len(clusters)):
     value = silhouette_score(X_trans, clusters[clust].predict(X_trans))
     cluster_silhouettes[key] = value
     
+    # uncomment the next 3 lines to print silhouette scores for each cluster 
 #    print(clusters[clust])
 #    print(f"Silhouette score for k={key}", value)
 #    print()
