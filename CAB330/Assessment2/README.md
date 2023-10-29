@@ -118,16 +118,21 @@ This can act as a centralised 'summary document' for our considerations and deci
 1. Drop Unsuccessful Requests (3522)
 1. Strip leading `[` from DateTime column
 1. Convert column to DateTime
-1. Extract Usernames from `requests`
+1. Extract Usernames from `request`
     1. `'.+nm=([\w]+)|\?user=([\w]+)|\?name=([\w]+)|show=([\w]+)'`
-    1. `nm`, `name`, and `user` are combined into a new column `username`
-    1. `show` values are stored in a different column, `UN_shown`
-1. Extract `method` from `request`
-1. Extract 'protocol' from 'request'
-1. Add 'conversion' column
-    1. Where 'request' column contains 'contestsubmission' = True
-1. Reset Index
+    1. `nm`, `name`, `user`, and `show` are combined into a new column `username`
+1. Extract page URLs from `request`
+1. Drop 'request' column
+1. Enrich with session info using `get_log_user_info` function
+1. Drop rows where `page` is NA
+1. Add `sessionLength` column
+1. Drop rows where `sessionLength` < 1 second
+    1. Likely to be bot traffic.
+1. One-Hot encode `page` for linear regression analysis
+1. GroupBy `session` and Reset Index
+    1. Performing analysis per session.
     1. Previous index values are not useful, clean slate is best practice and precludes and referencing errors in subsequent data operations.
+1. Return Columns 6 Onwards
 ### User Log Steps
 1. Time Difference Calculation:
     1. time_diff_session calculates the time difference between the current row's timestamp and the last access time for the identified session.
