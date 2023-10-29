@@ -23,7 +23,7 @@ user_id_dict = defaultdict(lambda:1)
 session_steps = defaultdict(lambda:1)
 
 # preprocess web log data
-web_df = preprocess_web_data(df)
+web_df = preprocess_web_data(web_data)
 
 # 3 - Data Mining Method: Linear Regression
 -----------------------
