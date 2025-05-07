@@ -40,7 +40,7 @@ ALTER MINING STRUCTURE [A2_Mining_Structure]
 ADD MINING MODEL [Demographics_Mining_Model]
 (
    [Survey_ID],
-   [Risk_infection_level] PREDICT,
+   [Risk_infection_level] PREDICT_ONLY,
    [Gender],
    [Age],
    [Height],
@@ -58,7 +58,7 @@ ALTER MINING STRUCTURE [A2_Mining_Structure]
 ADD MINING MODEL [Response_Mining_Model]
 (
    [Survey_ID],
-   [Risk_infection_level] PREDICT,
+   [Risk_infection_level] PREDICT_ONLY,
    [Smoking],
    [Contact_count],
    [House_count],
