@@ -1,0 +1,15 @@
+// predict with demographic vars on mining structure test cases 
+SELECT d.[Age], d.[Race], d.[BloodType], d.[Insurance], PREDICT([Risk_infection_level]) AS [Predicted Covid Infection Risk]
+From [Demographics_Mining_Model]
+NATURAL PREDICTION JOIN
+(SELECT * FROM [Demographics_Mining_Model].CASES WHERE IsTestCase()
+) AS d
+ORDER BY Risk_infection_level;
+
+// predict with response vars on dbo.Response
+SELECT PREDICT([Risk_infection_level]) AS [Predicted Covid Infection Risk], p.[Contact_count], p.[House_count], p.[Covid19_symptoms], p.[Covid19_contact], p.[Health_worker], p.[Nursing_home]
+From [Response_Mining_Model]
+NATURAL PREDICTION JOIN
+OPENQUERY([COVID19_Survey], 
+  'SELECT * FROM [Response]') AS p
+ORDER BY Risk_infection_level;
