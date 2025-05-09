@@ -31,7 +31,8 @@ CREATE MINING STRUCTURE [A2_Mining_Structure]
    [Other_chronic] BOOLEAN DISCRETE,
    [Nursing_home] BOOLEAN DISCRETE,
    [Health_worker] BOOLEAN DISCRETE
-);
+)
+WITH HOLDOUT (30 PERCENT);
 GO
 
 
@@ -50,7 +51,9 @@ ADD MINING MODEL [Demographics_Mining_Model]
    [Insurance],
    [Race]
 )
-USING Microsoft_Association_Rules;
+USING Microsoft_Association_Rules
+WITH DRILLTHROUGH;
+GO
 
 
 
@@ -79,7 +82,9 @@ ADD MINING MODEL [Response_Mining_Model]
    [Nursing_home],
    [Health_worker]
 )
-USING Microsoft_Association_Rules;
+USING Microsoft_Association_Rules
+WITH DRILLTHROUGH;
+GO
 
 
 
@@ -107,3 +112,4 @@ OPENQUERY(
    JOIN dbo.Participant AS p ON fs.Participant = p.Participant_ID
    JOIN dbo.Response AS r ON fs.Response = r.Response_ID'
 );
+GO
