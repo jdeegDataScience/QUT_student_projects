@@ -85,31 +85,3 @@ ADD MINING MODEL [Response_Mining_Model]
 USING Microsoft_Association_Rules
 WITH DRILLTHROUGH;
 GO
-
-
-
-INSERT INTO MINING STRUCTURE [A2_Mining_Structure]
-(
-  Survey_ID,
-  Risk_infection_level,
-  Gender, Age, Height, Weight_Kg, Bmi, BloodType, Insurance, Race,
-  Smoking, Contact_count, House_count, Public_transport_count, Working,
-  Covid19_symptoms, Covid19_contact, Asthma, Kidney_disease, Liver_disease,
-  Compromised_immune, Heart_disease, Lung_disease, Diabetes, Hiv_positive,
-  Hypertension, Other_chronic, Nursing_home, Health_worker
-)
-OPENQUERY(
-  [COVID19 Survey],
-  'SELECT
-     fs.Survey_ID,
-     fs.Risk_infection_level,
-     p.Gender, p.Age, p.Height, p.Weight, p.Bmi, p.BloodType, p.Insurance, p.Race,
-     r.Smoking, r.Contact_count, r.House_count, r.Public_transport_count, r.Working,
-     r.Covid19_symptoms, r.Covid19_contact, r.Asthma, r.Kidney_disease, r.Liver_disease,
-     r.Compromised_immune, r.Heart_disease, r.Lung_disease, r.Diabetes, r.Hiv_positive,
-     r.Hypertension, r.Other_chronic, r.Nursing_home, r.Health_worker
-   FROM dbo.Fact_survey AS fs
-   JOIN dbo.Participant AS p ON fs.Participant = p.Participant_ID
-   JOIN dbo.Response AS r ON fs.Response = r.Response_ID'
-);
-GO
