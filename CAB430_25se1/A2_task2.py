@@ -81,23 +81,52 @@ k = 10
 # ANOVA (f_regression)
 selector_f = SelectKBest(score_func=f_regression, k=k)
 selector_f.fit(X, y)
-scores_f = pd.Series(selector_f.scores_, index=X.columns).sort_values(ascending=False)
-selected_f = list(scores_f.head(k).index)
+scores_f = pd.Series(selector_f.scores_, index=X.columns)
 
 # Mutual Info
 selector_m = SelectKBest(score_func=mutual_info_regression, k=k)
 selector_m.fit(X, y)
-scores_m = pd.Series(selector_m.scores_, index=X.columns).sort_values(ascending=False)
-selected_m = list(scores_m.head(k).index)
+scores_m = pd.Series(selector_m.scores_, index=X.columns)
 
-# Display results in a DataFrame
-result = pd.DataFrame({
-    'ANOVA Score': scores_f,
-    'Mutual Info Score': scores_m
-})
+# Top-k by ANOVA
+anova_top = (
+    pd.DataFrame({
+        'Feature': scores_f.index,
+        'ANOVA Score': scores_f.values
+    })
+    .sort_values(by='ANOVA Score', ascending=False)
+    .head(k)
+    .reset_index(drop=True)
+)
 
-print("Top {} features by ANOVA:".format(k), selected_f)
-print("Top {} features by Mutual Information:".format(k), selected_m)
+# Top-k by Mutual Information
+mi_top = (
+    pd.DataFrame({
+        'Feature': scores_m.index,
+        'Mutual Info Score': scores_m.values
+    })
+    .sort_values(by='Mutual Info Score', ascending=False)
+    .head(k)
+    .reset_index(drop=True)
+)
+
+# Display results
+print("Top features by ANOVA:")
+print(anova_top)
+print("\nTop features by Mutual Information:")
+print(mi_top)
+
+# Extract the 'Feature' column as Python lists
+anova_feats = anova_top['Feature'].tolist()
+mi_feats = mi_top['Feature'].tolist()
+
+# Only select features from both sets 
+shared_features = list(set(anova_feats) & set(mi_feats))
+print("Features in both ANOVA & MI top-10:", shared_features)
+
+# Re‐slice X to only those shared features
+X = df_covid19[shared_features]
+y = df_covid19['Risk_infection']
 
 # Split out 20% for model testing 
 X_train, X_test, y_train, y_test = train_test_split(
@@ -107,18 +136,13 @@ X_train, X_test, y_train, y_test = train_test_split(
 # Train the decision tree
 dt = DecisionTreeClassifier(random_state=42)
 dt.fit(X_train, y_train)
-y_dt = dt.predict(X_test)
-acc_dt = accuracy_score(y_test, y_dt)
+y_pred_dt = dt.predict(X_test)
+print(f"Decision Tree Accuracy: {accuracy_score(y_test, y_pred_dt):.3f}")
+print(classification_report(y_test, y_pred_dt, zero_division=0))
 
 # Train the GNB
 gnb = GaussianNB()
 gnb.fit(X_train, y_train)
-y_gnb = gnb.predict(X_test)
-acc_gnb = accuracy_score(y_test, y_gnb)
-
-# Output results
-print(f"Decision Tree Accuracy: {acc_dt:.3f}")
-print(classification_report(y_test, y_dt, zero_division=0))
-
-print(f"GaussianNB Accuracy:     {acc_gnb:.3f}")
-print(classification_report(y_test, y_gnb, zero_division=0))
+y_pred_gnb = gnb.predict(X_test)
+print(f"GaussianNB Accuracy:     {accuracy_score(y_test, y_pred_gnb):.3f}")
+print(classification_report(y_test, y_pred_gnb, zero_division=0))
