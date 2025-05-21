@@ -1,6 +1,6 @@
-def import_sql_db_COVID19_Survey():
-    import pyodbc
-    import pandas as pd
+def import_sql_db_COVID19_Survey(pd, pyodbc):
+    # import pyodbc
+    # import pandas as pd
     # Open a connection to SQL Server COVID19_Survey database
     conn = pyodbc.connect(
         "Driver={ODBC Driver 17 for SQL Server};"
