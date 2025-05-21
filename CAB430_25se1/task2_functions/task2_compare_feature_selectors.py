@@ -8,8 +8,14 @@
 # from sklearn.naive_bayes import GaussianNB
 # from sklearn.metrics import accuracy_score, classification_report
 
-def compare_feat_selectors(X, y, num_features, feat_select_score_funcs,
+def compare_feat_selectors(X, y, num_features, feat_select_score_funcs, packages_arr,
                            classifier_names=["Decision Tree Classifier", "Gaussian Naive Bayes"], rs=42):
+    # packages_arr = [pd, SelectKBest, train_test_split, DecisionTreeClassifier, GaussianNB]
+    pd = packages_arr[0]
+    SelectKBest = packages_arr[1]
+    train_test_split = packages_arr[2]
+    DecisionTreeClassifier = packages_arr[3]
+    GaussianNB = packages_arr[4]
     
     # vars to store feature selection results
     top_sel_feats = pd.DataFrame(dtype='S')
