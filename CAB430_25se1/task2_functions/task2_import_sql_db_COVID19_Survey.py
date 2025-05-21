@@ -1,5 +1,5 @@
-# import pyodbc
-# import pandas as pd
+import pyodbc
+import pandas as pd
 
 def import_sql_db_COVID19_Survey():
     # Open a connection to SQL Server COVID19_Survey database
