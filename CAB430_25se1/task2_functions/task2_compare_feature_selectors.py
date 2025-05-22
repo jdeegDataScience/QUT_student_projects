@@ -34,7 +34,7 @@ def compare_feat_selectors(X, y, num_features, feat_select_score_funcs, packages
     top_sel_feats[feat_select_score_funcs[i][0]] = func_scores.nlargest(n=num_features, keep='all').index.to_list()
   
   # df to store model fit results
-  model_accuracies = pd.DataFrame(columns=['accuracy', 'dataset', 'classifier'])
+  model_accuracies = pd.DataFrame(columns=['accuracy', 'dataset', 'selector', 'classifier'])
   
   # loop features:classifiers
   for col in top_sel_feats.columns:
@@ -49,14 +49,14 @@ def compare_feat_selectors(X, y, num_features, feat_select_score_funcs, packages
     dt.fit(X_train, y_train)
     
     dt_accuracy = pd.DataFrame({'accuracy':[dt.score(X_train, y_train), dt.score(X_test, y_test)],
-                                'dataset':["training", "test"], 'classifier':[classifier_names[0], classifier_names[0]]})
+                                'dataset':["training", "test"], 'selector': col, 'classifier':[classifier_names[0], classifier_names[0]]})
     model_accuracies = pd.concat([model_accuracies, dt_accuracy], ignore_index=True)
     
     # Train the GNB
     gnb = GaussianNB()
     gnb.fit(X_train, y_train)
     gnb_accuracy = pd.DataFrame({'accuracy':[gnb.score(X_train, y_train), gnb.score(X_test, y_test)],
-                                 'dataset':["training", "test"], 'classifier':[classifier_names[1], classifier_names[1]]})
+                                 'dataset':["training", "test"], 'selector': col, 'classifier':[classifier_names[1], classifier_names[1]]})
     model_accuracies = pd.concat([model_accuracies, gnb_accuracy], ignore_index=True)
   
   scores_df.reset_index(inplace=True)
