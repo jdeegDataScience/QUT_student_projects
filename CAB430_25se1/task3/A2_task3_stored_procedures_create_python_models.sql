@@ -10,17 +10,22 @@ AS
 BEGIN
 	EXECUTE sp_execute_external_script @language = N'Python'
 	, @script = N'
+# import packages and libraries
 import pandas as pd
 from sklearn.tree import DecisionTreeClassifier
 import pickle
 
+# split target and input attributes from dataset
 y = training_data["Covid19_positive"]
 X = training_data.drop(columns=["Covid19_positive"])
+
+# train model
 model_py = DecisionTreeClassifier()
 model_py.fit(X, y)
 
 print("Training Accuracy:", model_py.score(X, y))
 
+# convert model to binary
 binary_model = pickle.dumps(model_py)
 trained_model_py = binary_model
 '
@@ -40,17 +45,22 @@ AS
 BEGIN
 	EXECUTE sp_execute_external_script @language = N'Python'
 	, @script = N'
+# import packages and libraries
 import pandas as pd
 from sklearn.naive_bayes import GaussianNB
 import pickle
 
+# split target and input attributes from dataset
 y = training_data["Covid19_positive"]
 X = training_data.drop(columns=["Covid19_positive"])
+
+# train model
 model_py = GaussianNB()
 model_py.fit(X, y)
 
 print("Training Accuracy:", model_py.score(X, y))
 
+# convert model to binary
 binary_model = pickle.dumps(model_py)
 trained_model_py = binary_model
 '
