@@ -6,7 +6,7 @@ GO
 
 SELECT
     fs.Survey_ID, fs.Date,
-    fs.Risk_infection_level,
+    fs.Covid19_positive,
     p.Gender, p.Age, p.Height, p.Weight, p.Bmi, p.BloodType, p.Insurance, p.Race,
     r.Smoking, r.Contact_count, r.House_count, r.Public_transport_count, r.Working,
     r.Covid19_symptoms, r.Covid19_contact, r.Asthma, r.Kidney_disease, r.Liver_disease,
@@ -24,7 +24,7 @@ GO
 
 SELECT
     fs.Survey_ID, fs.Date,
-    fs.Risk_infection_level,
+    fs.Covid19_positive,
     p.Gender, p.Age, p.Height, p.Weight, p.Bmi, p.BloodType, p.Insurance, p.Race,
     r.Smoking, r.Contact_count, r.House_count, r.Public_transport_count, r.Working,
     r.Covid19_symptoms, r.Covid19_contact, r.Asthma, r.Kidney_disease, r.Liver_disease,
