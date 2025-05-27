@@ -34,5 +34,5 @@ INTO dbo.Testing_Data
 FROM dbo.Fact_survey AS fs
 JOIN dbo.Participant AS p ON fs.Participant = p.Participant_ID
 JOIN dbo.Response AS r ON fs.Response = r.Response_ID
-WHERE (fs.Date NOT BETWEEN '2020-05-01' AND '2020-07-31')
+WHERE (fs.Date BETWEEN '2020-04-01' AND '2020-04-30')
 GO
