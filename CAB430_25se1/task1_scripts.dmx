@@ -1,0 +1,133 @@
+/* Scripts to create mining structure and models*/
+
+CREATE MINING STRUCTURE [A2_Mining_Structure]
+(
+   [Survey_ID] LONG KEY,
+   [Risk_infection_level] TEXT DISCRETE,
+
+   [Gender] TEXT DISCRETE,
+   [Age] TEXT DISCRETE,
+   [Height] LONG DISCRETE,
+   [Weight_Kg] LONG DISCRETE,
+   [Bmi] DOUBLE DISCRETE,
+   [BloodType] TEXT DISCRETE,
+   [Insurance] TEXT DISCRETE,
+   [Race] TEXT DISCRETE,
+
+   [Smoking] TEXT DISCRETE,
+   [Contact_count] LONG DISCRETE,
+   [House_count] LONG DISCRETE,
+   [Public_transport_count] LONG DISCRETE,
+   [Working] TEXT DISCRETE,
+   [Covid19_symptoms] BOOLEAN DISCRETE,
+   [Covid19_contact] BOOLEAN DISCRETE,
+   [Asthma] BOOLEAN DISCRETE,
+   [Kidney_disease] BOOLEAN DISCRETE,
+   [Liver_disease] BOOLEAN DISCRETE,
+   [Compromised_immune] BOOLEAN DISCRETE,
+   [Heart_disease] BOOLEAN DISCRETE,
+   [Lung_disease] BOOLEAN DISCRETE,
+   [Diabetes] BOOLEAN DISCRETE,
+   [Hiv_positive] BOOLEAN DISCRETE,
+   [Hypertension] BOOLEAN DISCRETE,
+   [Other_chronic] BOOLEAN DISCRETE,
+   [Nursing_home] BOOLEAN DISCRETE,
+   [Health_worker] BOOLEAN DISCRETE
+)
+WITH HOLDOUT (30 PERCENT);
+GO;
+
+ALTER MINING STRUCTURE [A2_Mining_Structure]
+ADD MINING MODEL [Demographics_Mining_Model]
+(
+   [Survey_ID],
+   [Risk_infection_level] PREDICT_ONLY,
+   [Gender],
+   [Age],
+   [Height],
+   [Weight_Kg],
+   [Bmi],
+   [BloodType],
+   [Insurance],
+   [Race]
+)
+USING Microsoft_Association_Rules
+WITH DRILLTHROUGH;
+GO;
+
+ALTER MINING STRUCTURE [A2_Mining_Structure]
+ADD MINING MODEL [Response_Mining_Model]
+(
+   [Survey_ID],
+   [Risk_infection_level] PREDICT_ONLY,
+   [Smoking],
+   [Contact_count],
+   [House_count],
+   [Public_transport_count],
+   [Working],
+   [Covid19_symptoms],
+   [Covid19_contact],
+   [Asthma],
+   [Kidney_disease],
+   [Liver_disease],
+   [Compromised_immune],
+   [Heart_disease],
+   [Lung_disease],
+   [Diabetes],
+   [Hiv_positive],
+   [Hypertension],
+   [Other_chronic],
+   [Nursing_home],
+   [Health_worker]
+)
+USING Microsoft_Association_Rules
+WITH DRILLTHROUGH;
+GO;
+
+/* Script to process mining structure and associated models*/
+
+INSERT INTO MINING STRUCTURE [A2_Mining_Structure]
+(
+  Survey_ID,
+  Risk_infection_level,
+  Gender, Age, Height, Weight_Kg, Bmi, BloodType, Insurance, Race,
+  Smoking, Contact_count, House_count, Public_transport_count, Working,
+  Covid19_symptoms, Covid19_contact, Asthma, Kidney_disease, Liver_disease,
+  Compromised_immune, Heart_disease, Lung_disease, Diabetes, Hiv_positive,
+  Hypertension, Other_chronic, Nursing_home, Health_worker
+)
+OPENQUERY(
+  [COVID19 Survey],
+  'SELECT
+    fs.Survey_ID,
+    fs.Risk_infection_level,
+    p.Gender, p.Age, p.Height, p.Weight, p.Bmi, p.BloodType, p.Insurance, p.Race,
+    r.Smoking, r.Contact_count, r.House_count, r.Public_transport_count, r.Working,
+    r.Covid19_symptoms, r.Covid19_contact, r.Asthma, r.Kidney_disease, r.Liver_disease,
+    r.Compromised_immune, r.Heart_disease, r.Lung_disease, r.Diabetes, r.Hiv_positive,
+    r.Hypertension, r.Other_chronic, r.Nursing_home, r.Health_worker
+  FROM dbo.Fact_survey AS fs
+  JOIN dbo.Participant AS p ON fs.Participant = p.Participant_ID
+  JOIN dbo.Response AS r ON fs.Response = r.Response_ID'
+);
+GO;
+
+/* Scripts to generate predictions from mining models*/
+
+// predict with demographic vars on mining structure test cases 
+SELECT d.[Age], d.[Race], d.[BloodType], d.[Insurance], PREDICT([Risk_infection_level]) AS [Predicted Covid Infection Risk]
+From [Demographics_Mining_Model]
+NATURAL PREDICTION JOIN
+(SELECT * FROM [Demographics_Mining_Model].CASES WHERE IsTestCase()
+) AS d
+ORDER BY Risk_infection_level;
+GO;
+
+// predict with response vars on dbo.Response
+SELECT PREDICT([Risk_infection_level]) AS [Predicted Covid Infection Risk], p.[Contact_count], p.[House_count], p.[Covid19_symptoms], p.[Covid19_contact], p.[Health_worker], p.[Nursing_home]
+From [Response_Mining_Model]
+NATURAL PREDICTION JOIN
+OPENQUERY([COVID19_Survey], 
+  'SELECT * FROM [Response]') AS p
+ORDER BY Risk_infection_level;
+GO;
