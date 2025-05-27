@@ -19,7 +19,7 @@ X = training_data.drop(columns=["Covid19_positive"])
 model_py = DecisionTreeClassifier()
 model_py.fit(X, y)
 
-print("Training Accuracy:", model_py.score(X_test, y_test))
+print("Training Accuracy:", model_py.score(X, y))
 
 binary_model = pickle.dumps(model_py)
 trained_model_py = binary_model
@@ -49,7 +49,7 @@ X = training_data.drop(columns=["Covid19_positive"])
 model_py = GaussianNB()
 model_py.fit(X, y)
 
-print("Training Accuracy:", model_py.score(X_test, y_test))
+print("Training Accuracy:", model_py.score(X, y))
 
 binary_model = pickle.dumps(model_py)
 trained_model_py = binary_model
